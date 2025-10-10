@@ -50,22 +50,123 @@
         }
 
         /* Title bar (mimics browser window) */
-        .title-bar {
-            background-color: #2c2f33; /* Dark gray title bar */
-            color: #fff;
-            padding: 8px 10px;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-weight: bold;
-            font-size: 14px;
-        }
+        <!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Chrome‑style Popup</title>
+<style>
+  :root{
+    --titlebar-bg1:#2b2f36;
+    --titlebar-bg2:#23272e;
+    --border:#3a3f46;
+    --text:#d8dbe0;
+    --content-bg:#0f1115;
+  }
+  body{margin:0;background:#101215;height:100vh;color:#cfd6de;font-family:Segoe UI,system-ui,Arial,sans-serif;}
+  /* Window */
+  .chrome-window{
+    position:fixed; top:80px; left:80px;
+    width:720px; height:360px; 
+    background:var(--content-bg);
+    border:1px solid var(--border);
+    border-radius:6px; overflow:hidden;
+    box-shadow:0 18px 60px rgba(0,0,0,.45);
+  }
+  /* Titlebar */
+  .titlebar{
+    height:32px; display:flex; align-items:center; gap:8px;
+    padding:0 8px; user-select:none; cursor:move;
+    background:linear-gradient(var(--titlebar-bg1), var(--titlebar-bg2));
+    border-bottom:1px solid #242a32;
+  }
+  .titlebar .icon{width:16px;height:16px}
+  .titlebar .title{
+    font-size:12.5px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .controls{margin-left:auto; display:flex;}
+  .controls button{
+    width:46px; height:32px; background:transparent; border:0; color:#a1a6ad;
+    font-size:14px; cursor:pointer;
+  }
+  .controls button:hover{background:#3a3f46}
+  .controls .close:hover{background:#e81123;color:#fff}
+  /* Content */
+  .content{height:calc(100% - 33px); padding:16px; overflow:auto}
+  /* States */
+  .minimized .content{display:none}
+  .maximized{
+    top:0 !important; left:0 !important; width:100vw !important; height:100vh !important; border-radius:0 !important;
+  }
+</style>
+</head>
+<body>
 
-        .title-bar h2 {
-            margin: 0;
-        }
+<div id="win" class="chrome-window">
+  <div id="drag" class="titlebar">
+    <img class="icon" alt="Chrome" src="https://www.google.com/chrome/static/images/favicons/favicon-32x32.png">
+    <div class="title">Discord - Google Chrome</div>
+    <div class="controls">
+      <button class="minimize" title="Minimize">–</button>
+      <button class="maximize" title="Maximize">□</button>
+      <button class="close"    title="Close">×</button>
+    </div>
+  </div>
+  <div class="content">
+    Put whatever you want inside this window.
+  </div>
+</div>
+
+<script>
+  const win = document.getElementById('win');
+  const drag = document.getElementById('drag');
+  const btnMin = win.querySelector('.minimize');
+  const btnMax = win.querySelector('.maximize');
+  const btnClose = win.querySelector('.close');
+
+  // Drag logic
+  let isDown=false, offsetX=0, offsetY=0, lastRect=null;
+  drag.addEventListener('mousedown', e=>{
+    if (e.target.closest('.controls')) return; // don't start drag on buttons
+    isDown=true;
+    const r = win.getBoundingClientRect();
+    offsetX = e.clientX - r.left;
+    offsetY = e.clientY - r.top;
+    document.body.style.userSelect = 'none';
+  });
+  window.addEventListener('mouseup', ()=>{ isDown=false; document.body.style.userSelect=''; });
+  window.addEventListener('mousemove', e=>{
+    if(!isDown || win.classList.contains('maximized')) return;
+    win.style.left = (e.clientX - offsetX) + 'px';
+    win.style.top  = (e.clientY - offsetY) + 'px';
+  });
+
+  // Controls
+  btnMin.onclick = () => win.classList.toggle('minimized');
+
+  btnMax.onclick = () => {
+    if (!win.classList.contains('maximized')) {
+      const r = win.getBoundingClientRect();
+      win.dataset.prevLeft = r.left; win.dataset.prevTop = r.top;
+      win.dataset.prevWidth = r.width; win.dataset.prevHeight = r.height;
+      win.classList.add('maximized');
+      win.style.left = '0px'; win.style.top = '0px';
+      win.style.width = '100vw'; win.style.height = '100vh';
+    } else {
+      win.classList.remove('maximized');
+      win.style.left = win.dataset.prevLeft + 'px';
+      win.style.top  = win.dataset.prevTop + 'px';
+      win.style.width = win.dataset.prevWidth + 'px';
+      win.style.height = win.dataset.prevHeight + 'px';
+    }
+  };
+
+  btnClose.onclick = () => win.remove(); // or: win.style.display = 'none';
+</script>
+
+</body>
+</html>
 
         /* Close button */
         .close-button {
