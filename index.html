@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>RoVer - Sign In</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
     * {margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
@@ -28,7 +28,6 @@
     .login-box {margin:80px auto;background:#000;padding:40px 30px;border-radius:6px;text-align:center;max-width:420px;width:90%;color:#fff;position:relative;z-index:1;transition:opacity 0.4s ease, transform 0.4s ease;}
     .login-box.hide {opacity:0;transform:scale(0.95);}
     .login-box.show {opacity:1;transform:scale(1);}
-
     .login-box h2 {font-size:24px;margin-bottom:8px;font-weight:600;}
     .login-box p {font-size:14px;margin-bottom:24px;}
     .login-box button {background:#e00078;color:#fff;border:none;padding:12px 28px;border-radius:22px;font-size:15px;font-weight:600;cursor:pointer;transition:background 0.2s;}
@@ -56,27 +55,25 @@
       position: fixed;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%) scale(0.9);
+      transform: translate(-50%, -50%) scale(0.96);
       width: 800px;
       height: 600px;
-      background: #fff;
+      background: #000;
       border-radius: 10px;
-      box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 0 25px rgba(0,0,0,0.6);
       opacity: 0;
       visibility: hidden;
-      transition: all 0.3s ease;
+      transition: all 0.25s ease;
       z-index: 2000;
       overflow: hidden;
     }
-    .iframe-popup.active {
-      opacity: 1;
-      visibility: visible;
-      transform: translate(-50%, -50%) scale(1);
-    }
+    .iframe-popup.active {opacity:1;visibility:visible;transform: translate(-50%, -50%) scale(1);}
     .iframe-popup iframe {
       width: 100%;
       height: 100%;
       border: none;
+      display:block;
+      background:#000;
     }
     .iframe-close {
       position: absolute;
@@ -92,6 +89,8 @@
       cursor: pointer;
       z-index: 10;
     }
+    /* dim background while popup shown */
+    #popupOverlay { z-index: 1990; }
   </style>
 </head>
 <body>
@@ -144,18 +143,27 @@
     </div>
   </footer>
 
+  <!-- background dim for popup -->
+  <div class="overlay" id="popupOverlay"></div>
+
   <!-- === POPUP STRUCTURE === -->
-  <div class="iframe-popup" id="iframePopup">
+  <div class="iframe-popup" id="iframePopup" aria-hidden="true">
     <button class="iframe-close" onclick="closeIframe()">✕</button>
-    <iframe src=""></iframe>
+    <iframe
+      id="oauthFrame"
+      title="Popup content"
+      referrerpolicy="no-referrer"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen
+      sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-pointer-lock"
+      src=""
+    ></iframe>
   </div>
 
   <script>
     const menuBtn = document.querySelector('.menu-btn');
     const sideMenu = document.getElementById('sideMenu');
     const overlay = document.getElementById('overlay');
-    const iframePopup = document.getElementById('iframePopup');
-    const iframe = iframePopup.querySelector('iframe');
 
     function toggleMenu() {
       sideMenu.classList.toggle('active');
@@ -187,29 +195,24 @@
       }, 400);
     }
 
+    // Set a working, embeddable URL (YouTube embed)
+    const POPUP_URL = "https://www.youtube.com/embed/dQw4w9WgXcQ";
+
+    const iframePopup = document.getElementById('iframePopup');
+    const popupOverlay = document.getElementById('popupOverlay');
+    const iframe = document.getElementById('oauthFrame');
+
     function openLogin() {
-      iframe.src = "example.com";
+      iframe.src = POPUP_URL; // use an embeddable URL (not a bare domain)
       iframePopup.classList.add("active");
+      popupOverlay.classList.add("active");
     }
 
     function closeIframe() {
       iframePopup.classList.remove("active");
-      iframe.src = "example.com";
+      popupOverlay.classList.remove("active");
+      iframe.src = "about:blank"; // stop playback/clear
     }
-  </script>
-
-  <!-- APPENDED (no changes above): force full https example.com on Continue -->
-  <script>
-    (function(){
-      var popup = document.getElementById('iframePopup');
-      var frame = popup ? popup.querySelector('iframe') : null;
-      var originalOpenLogin = window.openLogin;
-      window.openLogin = function(){
-        if (frame) frame.src = 'https://example.com';
-        if (popup) popup.classList.add('active');
-        // originalOpenLogin is not called to avoid resetting the src to the non-https value
-      };
-    })();
   </script>
 </body>
 </html>
