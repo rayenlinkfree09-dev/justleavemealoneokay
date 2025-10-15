@@ -3,81 +3,83 @@
 <head>
   <meta charset="UTF-8" />
   <title>RoVer - Sign In</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
-    body { background:#1e1d1f; min-height:100vh; overflow-x:hidden; color:#fff; }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+    body{background:#1e1d1f;min-height:100vh;overflow-x:hidden;color:#fff}
 
-    header { background:#e00078; height:56px; display:flex; align-items:center; padding:0 20px; position:relative; z-index:1001; }
-    .menu-btn { font-size:26px; color:#fff; cursor:pointer; background:none; border:none; margin-right:14px; }
-    .logo { font-size:20px; font-weight:600; color:#fff; display:flex; align-items:center; }
+    header{background:#e00078;height:56px;display:flex;align-items:center;padding:0 20px;position:relative;z-index:1001}
+    .menu-btn{font-size:26px;color:#fff;cursor:pointer;background:none;border:none;margin-right:14px}
+    .logo{font-size:20px;font-weight:600;color:#fff;display:flex;align-items:center}
 
-    .overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); opacity:0; visibility:hidden; transition:.25s; z-index:900; }
-    .overlay.active { opacity:1; visibility:visible; }
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;visibility:hidden;transition:.25s;z-index:900}
+    .overlay.active{opacity:1;visibility:visible}
 
-    .side-menu { position:fixed; top:0; left:-260px; width:260px; height:100%; background:#e00078; color:#fff; padding:20px; transition:.3s; z-index:1002; }
-    .side-menu.active { left:0; }
-    .side-menu .close-btn { font-size:28px; cursor:pointer; margin-bottom:20px; display:block; background:none; border:none; color:#fff; }
-    .side-menu ul { list-style:none; }
-    .side-menu ul li { margin:14px 0; font-size:16px; }
-    .side-menu ul li a { text-decoration:none; color:#fff; display:block; padding:6px 10px; border-radius:4px; transition:background .2s; }
-    .side-menu ul li a.disabled { opacity:.6; pointer-events:none; }
-    .side-menu ul li a.active { background:#fff; color:#000; }
+    .side-menu{position:fixed;top:0;left:-260px;width:260px;height:100%;background:#e00078;color:#fff;padding:20px;transition:.3s;z-index:1002}
+    .side-menu.active{left:0}
+    .side-menu .close-btn{font-size:28px;cursor:pointer;margin-bottom:20px;display:block;background:none;border:none;color:#fff}
+    .side-menu ul{list-style:none}
+    .side-menu ul li{margin:14px 0;font-size:16px}
+    .side-menu ul li a{text-decoration:none;color:#fff;display:block;padding:6px 10px;border-radius:4px;transition:background .2s}
+    .side-menu ul li a.disabled{opacity:.6;pointer-events:none}
+    .side-menu ul li a.active{background:#fff;color:#000}
 
-    .login-box { margin:80px auto; background:#000; padding:40px 30px; border-radius:6px; text-align:center; max-width:420px; width:90%; color:#fff; position:relative; z-index:1; transition:opacity .4s, transform .4s; }
-    .login-box.hide { opacity:0; transform:scale(.95); }
-    .login-box.show { opacity:1; transform:scale(1); }
-    .login-box h2 { font-size:24px; margin-bottom:8px; font-weight:600; }
-    .login-box p { font-size:14px; margin-bottom:24px; }
-    .login-box button { background:#e00078; color:#fff; border:none; padding:12px 28px; border-radius:22px; font-size:15px; font-weight:600; cursor:pointer; transition:background .2s; }
-    .login-box button:hover { background:#b80062; }
+    .login-box{margin:80px auto;background:#000;padding:40px 30px;border-radius:6px;text-align:center;max-width:420px;width:90%;color:#fff;position:relative;z-index:1;transition:opacity .4s,transform .4s}
+    .login-box.hide{opacity:0;transform:scale(.95)}
+    .login-box.show{opacity:1;transform:scale(1)}
+    .login-box h2{font-size:24px;margin-bottom:8px;font-weight:600}
+    .login-box p{font-size:14px;margin-bottom:24px}
+    .login-box button{background:#e00078;color:#fff;border:none;padding:12px 28px;border-radius:22px;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s}
+    .login-box button:hover{background:#b80062}
 
-    .oauth-box { background:#111; border-radius:8px; padding:30px 25px; text-align:center; }
-    .oauth-box .top { font-size:22px; font-weight:700; margin-bottom:15px; text-align:left; }
-    .oauth-box p.subtitle { font-size:14px; color:#ccc; margin:10px 0 20px; text-align:left; }
-    .oauth-box hr { border:none; border-top:1px solid #333; margin:20px 0; }
-    .oauth-box p.app-name { margin-bottom:20px; font-weight:600; }
-    .oauth-box button.continue { background:#fff; color:#000; border:none; padding:12px; border-radius:6px; font-size:15px; width:100%; margin-bottom:15px; cursor:pointer; }
-    .oauth-box p.or { margin:10px 0; color:#888; }
-    .oauth-box button.return { background:#111; color:#fff; border:1px solid #333; padding:12px; border-radius:6px; font-size:15px; width:100%; cursor:pointer; }
+    .oauth-box{background:#111;border-radius:8px;padding:30px 25px;text-align:center}
+    .oauth-box .top{font-size:22px;font-weight:700;margin-bottom:15px;text-align:left}
+    .oauth-box p.subtitle{font-size:14px;color:#ccc;margin:10px 0 20px;text-align:left}
+    .oauth-box hr{border:none;border-top:1px solid #333;margin:20px 0}
+    .oauth-box p.app-name{margin-bottom:20px;font-weight:600}
+    .oauth-box button.continue{background:#fff;color:#000;border:none;padding:12px;border-radius:6px;font-size:15px;width:100%;margin-bottom:15px;cursor:pointer}
+    .oauth-box p.or{margin:10px 0;color:#888}
+    .oauth-box button.return{background:#111;color:#fff;border:1px solid #333;padding:12px;border-radius:6px;font-size:15px;width:100%;cursor:pointer}
 
-    .extra-space { height:400px; }
-    footer { background:#18181a; padding:30px 20px; display:flex; justify-content:space-between; flex-wrap:wrap; color:#ccc; font-size:14px; }
-    footer .left { font-size:13px; }
-    footer .right { display:flex; flex-wrap:wrap; gap:20px; }
-    footer a { color:#ccc; text-decoration:none; }
-    footer a:hover { text-decoration:underline; }
-    .footer-logo { font-weight:700; font-size:18px; background:linear-gradient(to right, #ff4da6, #ff6600); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:10px; display:inline-block; }
+    .extra-space{height:400px}
+    footer{background:#18181a;padding:30px 20px;display:flex;justify-content:space-between;flex-wrap:wrap;color:#ccc;font-size:14px}
+    footer .left{font-size:13px}
+    footer .right{display:flex;flex-wrap:wrap;gap:20px}
+    footer a{color:#ccc;text-decoration:none}
+    footer a:hover{text-decoration:underline}
+    .footer-logo{font-weight:700;font-size:18px;background:linear-gradient(to right,#ff4da6,#ff6600);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;display:inline-block}
 
-    /* === POPUP: Chrome-style mock browser (320 x 640) === */
-    #popupOverlay { position:fixed; inset:0; background:rgba(0,0,0,.6); opacity:0; visibility:hidden; transition:.25s; z-index:1990; }
-    #popupOverlay.active { opacity:1; visibility:visible; }
+    /* Popup overlay */
+    #popupOverlay{position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;visibility:hidden;transition:.25s;z-index:1990}
+    #popupOverlay.active{opacity:1;visibility:visible}
 
-    .mock-window { position:fixed; inset:auto; top:50%; left:50%; transform:translate(-50%,-50%) scale(.96); width:320px; height:640px; background:#15171c; color:#d1d5db; border-radius:8px; box-shadow:0 18px 50px rgba(0,0,0,.45); overflow:hidden; opacity:0; visibility:hidden; transition:.25s transform, .25s opacity; z-index:2000; }
-    .mock-window.active { opacity:1; visibility:visible; transform:translate(-50%,-50%) scale(1); }
+    /* Chrome-style window (fits 320x640 iframe) */
+    .mock-window{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.96);width:360px;height:712px;background:#15171c;color:#d1d5db;border-radius:8px;box-shadow:0 18px 50px rgba(0,0,0,.45);overflow:hidden;opacity:0;visibility:hidden;transition:.25s;z-index:2000}
+    .mock-window.active{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}
 
-    .mw-titlebar { height:32px; display:grid; grid-template-columns:1fr auto; align-items:center; padding:0 8px; gap:8px; background:#2b2d31; border-bottom:1px solid rgba(255,255,255,.06); user-select:none; }
-    .mw-left { display:flex; align-items:center; gap:8px; min-width:0; }
-    .mw-logo { width:14px; height:14px; display:block; }
-    .mw-title { font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; opacity:.9; }
-    .mw-controls { display:grid; grid-auto-flow:column; grid-auto-columns:46px; height:100%; }
-    .mw-btn { appearance:none; border:0; background:transparent; color:#cfd3da; display:grid; place-items:center; cursor:pointer; }
-    .mw-btn:hover { background:rgba(255,255,255,.08); }
-    .mw-btn.close:hover { background:#e81123; color:#fff; }
-    .mw-ico { width:16px; height:16px; display:block; }
-    .mw-ico line, .mw-ico rect, .mw-ico path { stroke:currentColor; stroke-width:1.6; vector-effect:non-scaling-stroke; }
-    .mw-ico.min line { stroke-linecap:square; }
-    .mw-ico.max rect { fill:none; }
-    .mw-ico.close-x path { stroke-linecap:square; }
+    .mw-titlebar{height:32px;display:grid;grid-template-columns:1fr auto;align-items:center;padding:0 8px;gap:8px;background:#2b2d31;border-bottom:1px solid rgba(255,255,255,.06);user-select:none}
+    .mw-left{display:flex;align-items:center;gap:8px;min-width:0}
+    .mw-logo{width:14px;height:14px}
+    .mw-title{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.9}
+    .mw-controls{display:grid;grid-auto-flow:column;grid-auto-columns:46px;height:100%}
+    .mw-btn{appearance:none;border:0;background:transparent;color:#cfd3da;display:grid;place-items:center;cursor:pointer}
+    .mw-btn:hover{background:rgba(255,255,255,.08)}
+    .mw-btn.close:hover{background:#e81123;color:#fff}
+    .mw-ico{width:16px;height:16px;display:block}
+    .mw-ico line,.mw-ico rect,.mw-ico path{stroke:currentColor;stroke-width:1.6;vector-effect:non-scaling-stroke}
+    .mw-ico.min line{stroke-linecap:square}
+    .mw-ico.max rect{fill:none}
+    .mw-ico.close-x path{stroke-linecap:square}
 
-    .mw-toolbar { height:40px; display:flex; align-items:center; gap:8px; padding:0 8px; background:#1f232a; border-bottom:1px solid rgba(255,255,255,.06); user-select:none; }
-    .mw-omnibox { display:flex; align-items:center; gap:8px; flex:1; height:28px; background:#0f1217; color:#e5e7eb; border:1px solid #374151; border-radius:14px; padding:0 10px; }
-    .mw-omnibox .lock { width:14px; height:14px; color:#10b981; }
-    .mw-omnibox input { flex:1; background:transparent; color:inherit; border:0; outline:0; font:inherit; }
+    .mw-toolbar{height:40px;display:flex;align-items:center;gap:8px;padding:0 8px;background:#1f232a;border-bottom:1px solid rgba(255,255,255,.06);user-select:none}
+    .mw-omnibox{display:flex;align-items:center;gap:8px;flex:1;height:28px;background:#0f1217;color:#e5e7eb;border:1px solid #374151;border-radius:14px;padding:0 10px}
+    .mw-omnibox .lock{width:14px;height:14px;color:#10b981}
+    .mw-omnibox input{flex:1;background:transparent;color:inherit;border:0;outline:0;font:inherit}
 
-    .mw-content { height:calc(100% - 32px - 40px); background:#181a20; position:relative; }
-    .mw-frame { position:absolute; inset:0; width:100%; height:100%; border:0; background:#0b0e13; display:block; }
+    .mw-content{height:calc(100% - 32px - 40px);background:#181a20;position:relative;display:grid;place-items:center}
+    /* exact iframe size requested */
+    .mw-frame{width:320px;height:640px;border:0;background:#0b0e13;display:block}
   </style>
 </head>
 <body>
@@ -105,7 +107,6 @@
       <p>You must be 13 years of age or older to continue.</p>
       <button onclick="showOAuth()">Log in with Roblox</button>
     </div>
-
     <div class="extra-space"></div>
   </main>
 
@@ -203,7 +204,7 @@
       }, 400);
     }
 
-    // Mock browser popup logic (looks like the one we made, 320x640)
+    // Mock browser popup logic (exact 320x640 iframe)
     const mockWin  = document.getElementById('mockWin');
     const popOv    = document.getElementById('popupOverlay');
     const mwClose  = document.getElementById('mwClose');
@@ -240,12 +241,11 @@
     popOv.addEventListener('click', closeMock);
     mwUrl.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ openMock(mwUrl.value); } });
 
-    // Expose global openLogin used by the Continue button
+    // The Continue button uses this
     window.openLogin = function(){
       openMock(mwUrl.value || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
     };
-    // Close alias to match earlier name (if needed elsewhere)
-    window.closeIframe = closeMock;
+    window.closeIframe = closeMock; // optional alias
   </script>
 </body>
 </html>
